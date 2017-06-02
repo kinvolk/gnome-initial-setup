@@ -79,9 +79,8 @@ static gboolean
 page_validate (GisPasswordPage *page)
 {
   GisPasswordPagePrivate *priv = gis_password_page_get_instance_private (page);
-  gboolean has_reminder = (gtk_entry_get_text_length (GTK_ENTRY (priv->reminder_entry)) > 0);
 
-  return priv->valid_confirm && priv->valid_password && has_reminder;
+  return priv->valid_confirm && priv->valid_password;
 }
 
 static void
