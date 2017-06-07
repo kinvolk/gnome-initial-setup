@@ -132,6 +132,14 @@ on_apply_done (GisPage *page,
     switch_to_next_page (assistant);
 }
 
+GisPage *
+gis_assistant_get_next_page (GisAssistant *assistant,
+                             GisPage *page)
+{
+  GisAssistantPrivate *priv = gis_assistant_get_instance_private (assistant);
+  return find_next_page(priv->current_page);
+}
+
 void
 gis_assistant_next_page (GisAssistant *assistant)
 {
