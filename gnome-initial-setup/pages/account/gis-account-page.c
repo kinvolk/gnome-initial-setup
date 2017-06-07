@@ -61,10 +61,35 @@ static gboolean
 page_validate (GisAccountPage *page)
 {
   GisAccountPagePrivate *priv = gis_account_page_get_instance_private (page);
+  GisAssistant *assistant;
+  GisPage *pg;
+  gboolean passwordless;
+  gboolean local_valid = FALSE;
 
   switch (priv->mode) {
   case UM_LOCAL:
-    return gis_account_page_local_validate (GIS_ACCOUNT_PAGE_LOCAL (priv->page_local));
+    local_valid = gis_account_page_local_validate (GIS_ACCOUNT_PAGE_LOCAL (priv->page_local));
+    if (local_valid) {
+      passwordless = gis_account_page_local_is_passwordless(GIS_ACCOUNT_PAGE_LOCAL (priv->page_local));
+      if (passwordless) {
+        g_warning("parent: passwordless is true");
+      } else {
+        g_warning("parent: passwordless is false");
+      }
+      assistant = gis_driver_get_assistant (GIS_PAGE (page)->driver);
+      if (assistant == NULL) {
+        g_warning("assistant == NULL");
+      }
+      pg = gis_assistant_get_next_page(assistant, GIS_PAGE(page));
+      if (pg == NULL) {
+        g_warning("pg == NULL");
+      } else {
+        g_warning (gis_page_get_title(pg));
+        gis_page_set_skippable (pg, passwordless);
+        gtk_widget_set_visible (GTK_WIDGET (pg), !passwordless);
+      }
+    }
+    return local_valid;
   case UM_ENTERPRISE:
     return gis_account_page_enterprise_validate (GIS_ACCOUNT_PAGE_ENTERPRISE (priv->page_enterprise));
   default:
