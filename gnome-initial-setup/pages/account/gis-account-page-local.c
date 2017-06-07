@@ -382,6 +382,7 @@ passwordless (GtkSwitch *sw,
 {
   GisAccountPageLocalPrivate *priv = gis_account_page_local_get_instance_private (page);
   priv->passwordless = !gtk_switch_get_active(GTK_SWITCH(sw));
+  validation_changed (page);
 }
 
 static void

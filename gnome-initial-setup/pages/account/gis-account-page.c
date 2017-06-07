@@ -48,11 +48,22 @@ typedef struct _GisAccountPagePrivate GisAccountPagePrivate;
 G_DEFINE_TYPE_WITH_PRIVATE (GisAccountPage, gis_account_page, GIS_TYPE_PAGE);
 
 static void
+set_password_page_visibility (GisAccountPage *page,
+                              gboolean        visible)
+{
+  GisAssistant *assistant = gis_driver_get_assistant (GIS_PAGE (page)->driver);
+  GisPage *password_page = gis_assistant_get_next_page (assistant, GIS_PAGE (page));
+
+  gtk_widget_set_visible (GTK_WIDGET (password_page), visible);
+}
+
+static void
 enterprise_apply_complete (GisPage  *dummy,
                            gboolean  valid,
                            gpointer  user_data)
 {
   GisAccountPage *page = GIS_ACCOUNT_PAGE (user_data);
+  set_password_page_visibility (page, FALSE);
   gis_driver_set_username (GIS_PAGE (page)->driver, NULL);
   gis_page_apply_complete (GIS_PAGE (page), valid);
 }
@@ -70,24 +81,8 @@ page_validate (GisAccountPage *page)
   case UM_LOCAL:
     local_valid = gis_account_page_local_validate (GIS_ACCOUNT_PAGE_LOCAL (priv->page_local));
     if (local_valid) {
-      passwordless = gis_account_page_local_is_passwordless(GIS_ACCOUNT_PAGE_LOCAL (priv->page_local));
-      if (passwordless) {
-        g_warning("parent: passwordless is true");
-      } else {
-        g_warning("parent: passwordless is false");
-      }
-      assistant = gis_driver_get_assistant (GIS_PAGE (page)->driver);
-      if (assistant == NULL) {
-        g_warning("assistant == NULL");
-      }
-      pg = gis_assistant_get_next_page(assistant, GIS_PAGE(page));
-      if (pg == NULL) {
-        g_warning("pg == NULL");
-      } else {
-        g_warning (gis_page_get_title(pg));
-        gis_page_set_skippable (pg, passwordless);
-        gtk_widget_set_visible (GTK_WIDGET (pg), !passwordless);
-      }
+      passwordless = gis_account_page_local_is_passwordless (GIS_ACCOUNT_PAGE_LOCAL (priv->page_local));
+      set_password_page_visibility (page, !passwordless);
     }
     return local_valid;
   case UM_ENTERPRISE:
