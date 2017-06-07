@@ -52,6 +52,8 @@ struct _GisAccountPageLocalPrivate
   GtkWidget *fullname_entry;
   GtkWidget *username_combo;
   GtkWidget *username_explanation;
+  GtkWidget *password_switch;
+  gboolean passwordless;
   UmPhotoDialog *photo_dialog;
 
   gint timeout_id;
@@ -375,6 +377,15 @@ confirm (GisAccountPageLocal *page)
 }
 
 static void
+passwordless (GtkSwitch *sw,
+              GisAccountPageLocal *page)
+{
+  GisAccountPageLocalPrivate *priv = gis_account_page_local_get_instance_private (page);
+  priv->passwordless = !gtk_switch_get_active(GTK_SWITCH(sw));
+  validation_changed (page);
+}
+
+static void
 gis_account_page_local_constructed (GObject *object)
 {
   GisAccountPageLocal *page = GIS_ACCOUNT_PAGE_LOCAL (object);
@@ -398,6 +409,10 @@ gis_account_page_local_constructed (GObject *object)
                             "activate", G_CALLBACK (confirm), page);
   g_signal_connect_swapped (priv->fullname_entry, "activate",
                             G_CALLBACK (confirm), page);
+  g_signal_connect (priv->password_switch, "notify::active",
+                    G_CALLBACK (passwordless), page);
+
+  gtk_switch_set_active (GTK_SWITCH(priv->password_switch), FALSE);
 
   priv->valid_name = FALSE;
   priv->valid_username = FALSE;
@@ -535,6 +550,10 @@ local_create_user (GisAccountPageLocal *page)
 
   set_user_avatar (page);
 
+  if (priv->passwordless) {
+    act_user_set_password_mode (priv->act_user, ACT_USER_PASSWORD_MODE_NONE);
+  }
+
   g_signal_emit (page, signals[USER_CREATED], 0, priv->act_user, "");
 }
 
@@ -551,6 +570,7 @@ gis_account_page_local_class_init (GisAccountPageLocalClass *klass)
   gtk_widget_class_bind_template_child_private (GTK_WIDGET_CLASS (klass), GisAccountPageLocal, fullname_entry);
   gtk_widget_class_bind_template_child_private (GTK_WIDGET_CLASS (klass), GisAccountPageLocal, username_combo);
   gtk_widget_class_bind_template_child_private (GTK_WIDGET_CLASS (klass), GisAccountPageLocal, username_explanation);
+  gtk_widget_class_bind_template_child_private (GTK_WIDGET_CLASS (klass), GisAccountPageLocal, password_switch);
 
   object_class->constructed = gis_account_page_local_constructed;
   object_class->dispose = gis_account_page_local_dispose;
@@ -609,4 +629,11 @@ gis_account_page_local_shown (GisAccountPageLocal *local)
 {
   GisAccountPageLocalPrivate *priv = gis_account_page_local_get_instance_private (local);
   gtk_widget_grab_focus (priv->fullname_entry); 
+}
+
+gboolean
+gis_account_page_local_is_passwordless (GisAccountPageLocal *local)
+{
+  GisAccountPageLocalPrivate *priv = gis_account_page_local_get_instance_private (local);
+  return !gtk_switch_get_active(GTK_SWITCH(priv->password_switch));
 }
