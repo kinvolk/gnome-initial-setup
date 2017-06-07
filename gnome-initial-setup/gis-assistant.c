@@ -137,7 +137,23 @@ gis_assistant_get_next_page (GisAssistant *assistant,
                              GisPage *page)
 {
   GisAssistantPrivate *priv = gis_assistant_get_instance_private (assistant);
-  return find_next_page(priv->current_page);
+  return GIS_PAGE(page->assistant_priv->link->next->data);
+}
+
+GisPage *
+gis_assistant_find_page_from_page_id (GisAssistant *assistant,
+                                      char *page_id)
+{
+//    GisAssistantPrivate *priv = gis_assistant_get_instance_private (assistant);
+//    GList *l = gis_assistant_get_all_pages(assistant);
+//
+//    while (l != NULL) {
+//        if (l->data->page_id == page_id) {
+//            return GIS_PAGE(l->data);
+//        }
+//        l = l->next;
+//    }
+    return NULL;
 }
 
 void

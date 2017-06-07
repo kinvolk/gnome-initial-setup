@@ -62,7 +62,8 @@ void      gis_assistant_locale_changed    (GisAssistant *assistant);
 void      gis_assistant_save_data         (GisAssistant *assistant);
 GisPage * gis_assistant_get_next_page     (GisAssistant *assistant,
                                            GisPage *page);
-
+GisPage * gis_assistant_find_page_from_page_id (GisAssistant *assistant,
+                                                char *page_id);
 G_END_DECLS
 
 #endif /* __GIS_ASSISTANT_H__ */
