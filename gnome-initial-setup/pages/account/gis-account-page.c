@@ -81,24 +81,8 @@ page_validate (GisAccountPage *page)
   case UM_LOCAL:
     local_valid = gis_account_page_local_validate (GIS_ACCOUNT_PAGE_LOCAL (priv->page_local));
     if (local_valid) {
-      passwordless = gis_account_page_local_is_passwordless(GIS_ACCOUNT_PAGE_LOCAL (priv->page_local));
-      if (passwordless) {
-        g_warning("parent: passwordless is true");
-      } else {
-        g_warning("parent: passwordless is false");
-      }
-      assistant = gis_driver_get_assistant (GIS_PAGE (page)->driver);
-      if (assistant == NULL) {
-        g_warning("assistant == NULL");
-      }
-      pg = gis_assistant_get_next_page(assistant, GIS_PAGE(page));
-      if (pg == NULL) {
-        g_warning("pg == NULL");
-      } else {
-        g_warning (gis_page_get_title(pg));
-        gis_page_set_skippable (pg, passwordless);
-        gtk_widget_set_visible (GTK_WIDGET (pg), !passwordless);
-      }
+      passwordless = gis_account_page_local_is_passwordless (GIS_ACCOUNT_PAGE_LOCAL (priv->page_local));
+      set_password_page_visibility (page, !passwordless);
     }
     return local_valid;
   case UM_ENTERPRISE:
